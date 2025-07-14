@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>入房计算器2</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f4f8 0%, #d8e2ec 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(120deg, #2c3e50, #1a5276);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            margin-right: 12px;
+            transition: transform 0.3s;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .back-btn:hover {
+            background-color: rgba(255,255,255,0.15);
+            transform: scale(0.95);
+        }
+        
+        .title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            flex-grow: 1;
+            text-align: center;
+        }
+        
+        .calculator-content {
+            padding: 10px 0 15px;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-weight: 600;
+            color: #1a5276;
+            font-size: 1.05rem;
+            margin: 15px 15px 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e3e9f1;
+        }
+        
+        .calculator-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 0.92rem;
+        }
+        
+        .calculator-table tr {
+            border-bottom: 1px solid #f0f3f7;
+        }
+        
+        .calculator-table td {
+            padding: 12px 16px;
+        }
+        
+        .calculator-table .item-name {
+            color: #444;
+            width: 55%;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #e1e5eb;
+            border-radius: 6px;
+            font-size: 0.92rem;
+            text-align: right;
+            transition: all 0.3s;
+            font-weight: 500;
+            color: #2c82c9;
+            background-color: #fff;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        }
+        
+        .value-display {
+            text-align: right;
+            font-weight: 500;
+            color: #2874a6;
+            padding: 9px 12px;
+            border-radius: 6px;
+        }
+        
+        /* 重点突出样式 */
+        .highlight-total {
+            font-weight: 700;
+            color: #1a5276;
+            background-color: rgba(41, 128, 185, 0.1);
+            border: 1px solid rgba(41, 128, 185, 0.2);
+        }
+        
+        .highlight-cell {
+            font-weight: 700;
+            color: #1a5276;
+        }
+        
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d5e3f0, transparent);
+            margin: 14px 0;
+        }
+        
+        .note {
+            text-align: center;
+            margin: 15px 15px 0;
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            font-style: italic;
+            padding: 12px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #eef2f6;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 12px;
+            color: #7f8c8d;
+            font-size: 0.8rem;
+            padding-bottom: 5px;
+        }
+        
+        /* 重置按钮 */
+        .reset-container {
+            text-align: center;
+            margin: 20px 0 10px;
+        }
+        
+        .reset-btn {
+            background: linear-gradient(to right, #2c3e50, #1a5276);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(44, 62, 80, 0.2);
+        }
+        
+        .reset-btn:hover {
+            background: linear-gradient(to right, #1a5276, #2c3e50);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(44, 62, 80, 0.3);
+        }
+        
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* 自定义数字输入框箭头 */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        
+        .unit-label {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            margin-left: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+           
+            <div class="title">入房计算器2</div>
+        </div>
+        
+        <div class="calculator-content">
+            <div class="section-title">项目预算（万元）</div>
+            
+            <table class="calculator-table">
+                <tr>
+                    <td class="item-name">出房价</td>
+                    <td>
+                        <input type="number" class="input-field" id="sellingPrice" 
+                               value="0.00" step="0.01">
+                        <span class="unit-label">万元</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">入房价</td>
+                    <td>
+                        <input type="number" class="input-field" id="purchasePrice" 
+                               value="0.00" step="0.01">
+                        <span class="unit-label">万元</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">装修款</td>
+                    <td>
+                        <input type="number" class="input-field" id="renovationCost" 
+                               value="0.00" step="0.01">
+                        <span class="unit-label">万元</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">软装款</td>
+                    <td>
+                        <input type="number" class="input-field" id="furnishingCost" 
+                               value="0.00" step="0.01">
+                        <span class="unit-label">万元</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">入房佣金</td>
+                    <td>
+                        <input type="number" class="input-field" id="purchaseCommission" 
+                               value="0.00" step="0.01">
+                        <span class="unit-label">万元</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">出房佣金</td>
+                    <td>
+                        <input type="number" class="input-field" id="sellingCommission" 
+                               value="0.00" step="0.01">
+                        <span class="unit-label">万元</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">营销费用</td>
+                    <td>
+                        <input type="number" class="input-field" id="marketingCost" 
+                               value="0.00" step="0.01">
+                        <span class="unit-label">万元</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">奖励红包</td>
+                    <td>
+                        <input type="number" class="input-field" id="incentive" 
+                               value="0.00" step="0.01">
+                        <span class="unit-label">万元</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">其他费用</td>
+                    <td>
+                        <input type="number" class="input-field" id="otherCosts" 
+                               value="0.00" step="0.01">
+                        <span class="unit-label">万元</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">成本合计</td>
+                    <td class="value-display highlight-total" id="totalCost">0.00<span class="unit-label">万元</span></td>
+                </tr>
+            </table>
+            
+            <div class="section-divider"></div>
+            
+            <div class="section-title">房源信息</div>
+            
+            <table class="calculator-table">
+                <tr>
+                    <td class="item-name">房源面积（m²）</td>
+                    <td>
+                        <input type="number" class="input-field" id="propertyArea" 
+                               value="0.00" step="0.01">
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">入房单价（元/m²）</td>
+                    <td class="value-display" id="purchasePricePerSqm">0.00</td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">出房单价（元/m²）</td>
+                    <td class="value-display" id="sellingPricePerSqm">0.00</td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">房价差（元/m²）</td>
+                    <td class="value-display" id="priceDifferencePerSqm">0.00</td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">装修平米价（元/m²）</td>
+                    <td class="value-display" id="renovationCostPerSqm">0.00</td>
+                </tr>
+            </table>
+            
+            <div class="section-divider"></div>
+            
+            <div class="section-title">利润</div>
+            
+            <table class="calculator-table">
+                <tr>
+                    <td class="item-name">毛利润（元）</td>
+                    <td class="value-display highlight-cell" id="grossProfit">0.00</td>
+                </tr>
+                
+                <tr>
+                    <td class="item-name">收益率（%）</td>
+                    <td class="value-display highlight-cell" id="profitRate">0.00</td>
+                </tr>
+            </table>
+            
+            <div class="reset-container">
+                <button class="reset-btn" id="resetBtn">重置数据</button>
+            </div>
+            
+            <div class="note">
+                提示：修改任意输入框的值，计算结果将自动更新。所有数据仅在浏览器中处理。
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>纯前端计算器 © 2025 | 数据实时计算</p>
+        </div>
+    </div>
+
+    <script>
+        // 计算所有值
+        function calculateValues() {
+            // 获取输入值（项目预算部分单位为万元，需要转换为元）
+            const sellingPrice = (parseFloat(document.getElementById('sellingPrice').value) || 0) * 10000;
+            const purchasePrice = (parseFloat(document.getElementById('purchasePrice').value) || 0) * 10000;
+            const renovationCost = (parseFloat(document.getElementById('renovationCost').value) || 0) * 10000;
+            const furnishingCost = (parseFloat(document.getElementById('furnishingCost').value) || 0) * 10000;
+            const purchaseCommission = (parseFloat(document.getElementById('purchaseCommission').value) || 0) * 10000;
+            const sellingCommission = (parseFloat(document.getElementById('sellingCommission').value) || 0) * 10000;
+            const marketingCost = (parseFloat(document.getElementById('marketingCost').value) || 0) * 10000;
+            const incentive = (parseFloat(document.getElementById('incentive').value) || 0) * 10000;
+            const otherCosts = (parseFloat(document.getElementById('otherCosts').value) || 0) * 10000;
+            const propertyArea = parseFloat(document.getElementById('propertyArea').value) || 0;
+            
+            // 计算总成本（单位为万元）
+            const totalCostInYuan = purchasePrice + renovationCost + furnishingCost + purchaseCommission + 
+                              sellingCommission + marketingCost + incentive + otherCosts;
+            const totalCostInWan = totalCostInYuan / 10000;
+            
+            // 计算收益（单位为元）
+            const grossProfit = sellingPrice - totalCostInYuan;
+            const profitRate = totalCostInYuan > 0 ? ((grossProfit / totalCostInYuan) * 100) : 0;
+            
+            // 计算房源信息（单位为元）
+            const purchasePricePerSqm = propertyArea > 0 ? purchasePrice / propertyArea : 0;
+            const sellingPricePerSqm = propertyArea > 0 ? sellingPrice / propertyArea : 0;
+            const priceDifferencePerSqm = sellingPricePerSqm - purchasePricePerSqm;
+            const renovationCostPerSqm = propertyArea > 0 ? (renovationCost + furnishingCost) / propertyArea : 0;
+            
+            // 更新显示的值
+            document.getElementById('totalCost').textContent = totalCostInWan.toFixed(2);
+            document.getElementById('grossProfit').textContent = grossProfit.toFixed(2);
+            document.getElementById('profitRate').textContent = profitRate.toFixed(2);
+            
+            document.getElementById('purchasePricePerSqm').textContent = purchasePricePerSqm.toFixed(2);
+            document.getElementById('sellingPricePerSqm').textContent = sellingPricePerSqm.toFixed(2);
+            document.getElementById('priceDifferencePerSqm').textContent = priceDifferencePerSqm.toFixed(2);
+            document.getElementById('renovationCostPerSqm').textContent = renovationCostPerSqm.toFixed(2);
+        }
+        
+        // 重置数据到0
+        function resetData() {
+            document.getElementById('sellingPrice').value = '0.00';
+            document.getElementById('purchasePrice').value = '0.00';
+            document.getElementById('renovationCost').value = '0.00';
+            document.getElementById('furnishingCost').value = '0.00';
+            document.getElementById('purchaseCommission').value = '0.00';
+            document.getElementById('sellingCommission').value = '0.00';
+            document.getElementById('marketingCost').value = '0.00';
+            document.getElementById('incentive').value = '0.00';
+            document.getElementById('otherCosts').value = '0.00';
+            document.getElementById('propertyArea').value = '0.00';
+            
+            calculateValues();
+        }
+        
+        // 初始化事件监听器
+        function init() {
+            // 添加计算输入框事件
+            const inputFields = document.querySelectorAll('.input-field');
+            inputFields.forEach(field => {
+                field.addEventListener('input', calculateValues);
+            });
+            
+            // 添加重置按钮事件
+            document.getElementById('resetBtn').addEventListener('click', resetData);
+            
+            // 初始计算
+            calculateValues();
+            
+            // 返回按钮功能
+            document.querySelector('.back-btn').addEventListener('click', function() {
+                alert('返回上一页面');
+            });
+        }
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
